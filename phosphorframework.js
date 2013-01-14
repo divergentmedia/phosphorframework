@@ -405,8 +405,11 @@ function PhosphorPlayer(bindto_id){
 			clearTimeout(self._timer);
 		}
         
-		if (self._canvas && self._canvas.getContext && self._jsonData) {
+		if (self._canvas && self._canvas.getContext && self._jsonData && self._atlasImagesLoaded) {
 			animate();
+		}
+		else {
+			setTimeout(function(){ self.play(); }, 100);
 		}
         
 	};
@@ -455,11 +458,18 @@ function PhosphorPlayer(bindto_id){
 		self._canvas.height = imgdiv.height;
 		self._canvas.style.cssText = 'display:block;';
         
-		imgdiv.onload = function() {
-            parent.replaceChild(self._canvas,imgdiv);
+		if(imgdiv.complete) {
+			parent.replaceChild(self._canvas,imgdiv);
 			var context = self._canvas.getContext("2d");
 			context.drawImage(imgdiv, 0,0);
-		};
+		}
+		else {
+			imgdiv.onload = function() {
+				parent.replaceChild(self._canvas,imgdiv);
+				var context = self._canvas.getContext("2d");
+				context.drawImage(imgdiv, 0,0);
+			};
+		}
 
 
 	};
