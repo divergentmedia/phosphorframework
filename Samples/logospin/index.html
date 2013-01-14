@@ -1,0 +1,166 @@
+<html>
+<head>
+  <title>logospin</title>
+  <script src="http://code.jquery.com/jquery-latest.js"></script>
+  <script type="text/javascript" src="../../phosphorframework.js"></script>
+</head>
+
+<body>
+	
+	<p>logospin.</p>
+
+	<img id="anim_target_logospin" src="logospin.png" width="250" height="250"/>
+
+	<br/>
+
+  <form>
+      
+
+    <button onclick="playPhosphor();return false;">Play</button>
+    <button onclick="pausePhosphor();return false;">Pause</button>
+
+    <button onclick="jumpBackwardPhosphor();return false;">jump back</button>
+    <button onclick="jumpForwardPhosphor();return false;">jump forward</button>
+    <a href="#source-code">Show Source</a>
+  </form>
+
+  <script>
+
+  var player_logospin = null;
+  var logospin_framecount = 0;
+
+
+  /**
+   * After the page has loaded, we register a callback which will be triggered by the jsonp file.
+   * Once the callback is registered, we inject the jsonp script file into the page's HEAD block.
+   * An alternative method is to use AJAX (getJSON, etc) to load the corresponding json file.  After loading the
+   * data, instantiate the player in the same way.
+   */
+
+   $(document).ready(function(){
+    player_logospin = new PhosphorPlayer('anim_target_logospin');
+    phosphorCallback_logospin = function(data) {
+
+      /**
+       * Instantiate the player.  The player supports a variate of callbacks for deeper integration into your site.
+       */
+
+       logospin_framecount = data.frames.length;
+       player_logospin.load_animation({
+        imageArray:["logospin_atlas000.png"],
+        animationData: data,
+        loop: true,
+        onLoad: function() {
+          player_logospin.play();
+
+          /**
+           * If your Phosphor composition was created with the "interactive" mode set, the code below enables that
+           * interation.  Handlers are registered for both mouse drag and touch events.
+           */
+
+           var trappedMouse = false;
+           var trappedXPos;
+
+           var enableInteractivity = false;
+
+           if(enableInteractivity) {
+            $("#anim_target_logospin").mousedown(function(e){
+              e.preventDefault();
+              player_logospin.stop();
+              trappedMouse = true;
+              trappedXPos = e.pageX;
+              $(document).bind('mousemove',function(event) {
+                if(trappedMouse){
+                  var pos =  (event.pageX - trappedXPos) / 5;
+                  var seekTime = (logospin_framecount + player_logospin.currentFrameNumber() + parseInt(pos)) % logospin_framecount;
+                  player_logospin.setCurrentFrameNumber(seekTime);
+                  trappedXPos = event.pageX;
+                }
+
+              });
+
+            });
+
+            $(document).mouseup(function(e){
+              trappedMouse = false;
+              $(document).unbind('mousemove');
+            });
+
+          
+
+            $("#anim_target_logospin").bind("touchstart",function(event){
+             var e = event.originalEvent;
+             e.preventDefault();
+             player_logospin.stop();
+             trappedMouse = true;
+             trappedXPos = e.pageX;
+             $(document).bind('touchmove', function(e) {
+              if(trappedMouse){
+                var e = e.originalEvent;
+                e.preventDefault();
+                var pos =  (e.pageX - trappedXPos) / 5;
+                var seekTime = (logospin_framecount + player_logospin.currentFrameNumber() + parseInt(pos)) % logospin_framecount;
+                player_logospin.setCurrentFrameNumber(seekTime);
+                trappedXPos = e.pageX;
+              }
+             });
+           });
+
+            $("#anim_target_logospin").bind("touchend",function(event){
+             var e = event.originalEvent;
+             e.preventDefault();
+             trappedMouse = false;
+             player_logospin.play(true);
+             $(document).unbind('touchmove');
+           });
+
+          }
+
+        }
+      });
+     }
+     var jsonpScript = document.createElement("script");
+     jsonpScript.type = "text/javascript";
+     jsonpScript.id = "jsonPinclude_logospin";
+     jsonpScript.src = "logospin_animationData.json" + "p";
+     document.getElementsByTagName("head")[0].appendChild(jsonpScript);
+
+
+});
+
+  /**
+   * These functions demonstrate some of the ways you can control the Phosphor player.
+   * If you simply wish to play a Phosphor composition on your page, none of these need to be
+   * defined.
+   */
+
+   function toggleDebug(){
+    player_logospin.debug(document.getElementById("debugCheckbox").checked);
+  };
+
+  function playPhosphor(){
+    player_logospin.play(true);
+  };
+
+  function pausePhosphor(){
+    player_logospin.stop();
+  };
+
+  function jumpForwardPhosphor(){
+    player_logospin.stop();
+
+    var seekTime = (player_logospin.currentFrameNumber() + 1) % logospin_framecount;
+    player_logospin.setCurrentFrameNumber(seekTime);
+  };
+
+  function jumpBackwardPhosphor(){
+    player_logospin.stop();
+
+    var seekTime = (logospin_framecount + player_logospin.currentFrameNumber() - 1) % logospin_framecount;
+    player_logospin.setCurrentFrameNumber(seekTime);
+  };
+
+  </script>
+
+</body>
+</html>
