@@ -327,7 +327,7 @@ function PhosphorPlayer(bindto_id){
 					self._playbackFinishedCallback();
 				}
                 
-				if(self.loop){
+				if(self._loop){
 					self._currentFrameNumber = 0;
 				}else{
 					clearTimeout(self._timer);
