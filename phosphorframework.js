@@ -84,7 +84,7 @@ function PhosphorPlayer(bindto_id){
         };
         
         var readBytes = function(byteCount) {
-            var accumulator = 0;
+            var accumulator = 0, i;
             for(i=0; i < byteCount; i++) {
                 accumulator = (accumulator << 8) + readByte();
             }
@@ -188,7 +188,7 @@ function PhosphorPlayer(bindto_id){
         ctx.font = "normal 12px Letter Faces";
         ctx.fillText(alertText, self._canvas.width/2 - metrics.width/2, self._canvas.height/2);
         console.log(alertText + " Confirm that your phosphor framework is the same or newer than the composition.  Composition version: " + compVersion + ", framework version: " + self.frameworkVersion);
-    }
+    };
     
     var _doFrameBlits = function(blits, clearBeforeBlitting, debugBlits)
     {
