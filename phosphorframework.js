@@ -166,6 +166,7 @@ function PhosphorPlayer(bindto_id){
     
 	this._debug = false;
 	this._canvas = null;
+	this._targetDiv = null;
 	this._imgArray = [];
 	this._timer = null;
 	this._currentFrameNumber = 0;
@@ -193,7 +194,7 @@ function PhosphorPlayer(bindto_id){
 	var _doFrameBlits = function(blits, clearBeforeBlitting, debugBlits)
 	{
 		debugBlits = (typeof debugBlits === "undefined") ? false : debugBlits;
-		var ctx = self._canvas.getContext('2d');
+		//var ctx = self._canvas.getContext('2d');
 		var isIFrame = false;
         
 		var bitStream = Base64BitStream(blits);
@@ -225,7 +226,7 @@ function PhosphorPlayer(bindto_id){
 					isIFrame = true;
 					var displayWidth = self._jsonData.framesize.width;
 					var displayHeight = self._jsonData.framesize.height;
-					ctx.clearRect(0, 0, displayWidth, displayHeight);
+				//	ctx.clearRect(0, 0, displayWidth, displayHeight);
 				}
                 
 				var offset = bitStream.bytePos();
@@ -257,18 +258,47 @@ function PhosphorPlayer(bindto_id){
 						h2 = (bitStream.readBits(destHeightBitDepth) + 1) * blockSize;
 					}
                     
+
+
+
+					var targetX = dx / blockSize;
+					var targetY = dy /blockSize;
+
+					var microDiv = document.getElementById("block_" + targetY + "_" + targetX);
+
+
 					//clear the blit if we are a pframe
 					if(frameType == 1 && clearBeforeBlitting){
-						ctx.clearRect(dx, dy, w2, h2);
+						microDiv.style.backgroundImage = "none";
 					}
                     
-					ctx.drawImage(self._imgArray[imgindex], sx, sy, w1, h1, dx, dy, w2, h2);
-                    
-					if(debugBlits){
-						ctx.lineWidth="1";
-						ctx.strokeStyle="red";
-						ctx.strokeRect(dx+1,dy+1,w2-2,h2-2);
+
+					var targetX = dx / blockSize;
+					var targetY = dy /blockSize;
+					var microDiv = document.getElementById("block_" + targetY + "_" + targetX);
+					
+					if(microDiv) {
+						microDiv.style.backgroundImage = "url('"+self._imgArray[imgindex].src+"')";
+						var tx = sx;
+						var ty = sy;
+						microDiv.style.backgroundPosition = "-" + tx + "px -" + ty + "px";
 					}
+
+			// 		d.style.left = dx + "px"
+			// d.style.top = dy + "px"
+			// d.style.width = w + "px"
+			// d.style.height = h + "px"
+			// d.style.backgroundImage = "url('" + img.src + "')"
+			// d.style.backgroundPosition = "-" + sx + "px -" + sy + "px"
+
+
+					// ctx.drawImage(self._imgArray[imgindex], sx, sy, w1, h1, dx, dy, w2, h2);
+                    
+					// if(debugBlits){
+					// 	ctx.lineWidth="1";
+					// 	ctx.strokeStyle="red";
+					// 	ctx.strokeRect(dx+1,dy+1,w2-2,h2-2);
+					// }
 				}
 			}
 		}
@@ -282,7 +312,7 @@ function PhosphorPlayer(bindto_id){
 		var metadata = self._jsonData;
 		var dataVersion = metadata.version;
         
-		var ctx = self._canvas.getContext('2d');
+		//var ctx = self._canvas.getContext('2d');
 		if(dataVersion > self.frameworkVersion) {
             alertFrameworkVersion(dataVersion);
             return;
@@ -346,7 +376,7 @@ function PhosphorPlayer(bindto_id){
 		var metadata = self._jsonData;
 		var dataVersion = metadata.version;
         
-		var ctx = self._canvas.getContext('2d');
+		//var ctx = self._canvas.getContext('2d');
         
 		if(dataVersion > self.frameworkVersion) {
             alertFrameworkVersion(dataVersion);
@@ -360,7 +390,7 @@ function PhosphorPlayer(bindto_id){
 		var frames = metadata.frames;
         
 		if(clearBeforeBlitting){
-			ctx.clearRect(0, 0, displayWidth, displayHeight);
+		//	ctx.clearRect(0, 0, displayWidth, displayHeight);
 		}
         
 		var blits = frames[self._currentFrameNumber];
@@ -405,7 +435,7 @@ function PhosphorPlayer(bindto_id){
 			clearTimeout(self._timer);
 		}
         
-		if (self._canvas && self._canvas.getContext && self._jsonData && self._atlasImagesLoaded) {
+		if (self._jsonData && self._atlasImagesLoaded) {
 			animate();
 		}
 		else {
@@ -446,30 +476,59 @@ function PhosphorPlayer(bindto_id){
 		var imgdiv = document.getElementById(img_id);
 		var parent = imgdiv.parentNode;
         
-		self._canvas = document.createElement('canvas');
+		// self._canvas = document.createElement('canvas');
         
-        var canvascheck=(self._canvas.getContext)? true : false
-		if(!canvascheck) {
-			return false;
-		}
+  //       var canvascheck=(self._canvas.getContext)? true : false
+		// if(!canvascheck) {
+		// 	return false;
+		// }
         
-		self._canvas.id = imgdiv.id;
-		self._canvas.width = imgdiv.width;
-		self._canvas.height = imgdiv.height;
-		self._canvas.style.cssText = 'display:block;';
+		// self._canvas.id = imgdiv.id;
+		// self._canvas.width = imgdiv.width;
+		// self._canvas.height = imgdiv.height;
+		// self._canvas.style.cssText = 'display:block;';
         
-		if(imgdiv.complete) {
-			parent.replaceChild(self._canvas,imgdiv);
-			var context = self._canvas.getContext("2d");
-			context.drawImage(imgdiv, 0,0);
+		// if(imgdiv.complete) {
+		// 	parent.replaceChild(self._canvas,imgdiv);
+		// 	var context = self._canvas.getContext("2d");
+		// 	context.drawImage(imgdiv, 0,0);
+		// }
+		// else {
+		// 	imgdiv.onload = function() {
+		// 		parent.replaceChild(self._canvas,imgdiv);
+		// 		var context = self._canvas.getContext("2d");
+		// 		context.drawImage(imgdiv, 0,0);
+		// 	};
+		// }
+
+		self._targetDiv = document.createElement('div');
+		self._targetDiv.id = imgdiv.id;
+		self._targetDiv.style.width = imgdiv.width;
+		self._targetDiv.style.height = imgdiv.height;
+		self._targetDiv.style.border = '1px solid black';
+		self._targetDiv.style.position = "relative";
+		var widthBlocks = Math.floor(imgdiv.width / 8);
+		var heightBlocks = Math.floor(imgdiv.height / 8);
+
+		for(y=0;y<heightBlocks; y++) {
+			for(x=0; x<widthBlocks; x++) {
+
+				var newDiv = document.createElement('div');
+				newDiv.id = "block_" + y + "_" + x;
+				newDiv.style.width = 8;
+				newDiv.style.height = 8;
+				newDiv.style.top = 8*y;
+				newDiv.style.left = 8*x;
+				newDiv.style.position = "absolute";
+				self._targetDiv.appendChild(newDiv);
+
+			}
 		}
-		else {
-			imgdiv.onload = function() {
-				parent.replaceChild(self._canvas,imgdiv);
-				var context = self._canvas.getContext("2d");
-				context.drawImage(imgdiv, 0,0);
-			};
-		}
+
+		//if(imgdiv.complete) {
+			parent.replaceChild(self._targetDiv,imgdiv);
+
+		//}
 
 
 	};
