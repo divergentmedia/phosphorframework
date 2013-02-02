@@ -26,6 +26,38 @@
  *
  */
 
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+
+// requestAnimationFrame polyfill by Erik Möller
+// fixes from Paul Irish and Tino Zijdel
+
+// version: https://gist.github.com/raw/1579671/7f515ade253afbc860dac1f84e21998d54359d79/rAF.js
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+ 
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+ 
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
+
 function PhosphorPlayer(bindto_id){
     
     var self = this;
@@ -167,7 +199,7 @@ function PhosphorPlayer(bindto_id){
     this._debug = false;
     this._canvas = null;
     this._imgArray = [];
-    this._timer = null;
+    this._play = true;
     this._currentFrameNumber = 0;
     this._frameCount = 0;
     this._loop = false;
@@ -290,9 +322,19 @@ function PhosphorPlayer(bindto_id){
         
         var clearBeforeBlitting = metadata.hasAlpha;
         
-        var f = function()
+        var lastTime = 0;
+        var frameDelay = 0
+
+        var f = function(now)
         {
             var frames = metadata.frames;
+
+            if (self._play === false) return;
+
+            if (lastTime > 0 && (now - lastTime < frameDelay)) {
+                requestAnimationFrame(f);
+                return
+            }
             
             if(self._debug){
                 var lastFrameBlits = frames[self._currentFrameNumber - 1];
@@ -319,7 +361,7 @@ function PhosphorPlayer(bindto_id){
             
             self._currentFrameNumber++;
             
-            if(self._currentFrameNumber > frames.length){
+            if(self._currentFrameNumber == frames.length){
                 
                 if(self._playbackFinishedCallback) {
                     self._playbackFinishedCallback();
@@ -328,17 +370,17 @@ function PhosphorPlayer(bindto_id){
                 if(self._loop){
                     self._currentFrameNumber = 0;
                 }else{
-                    clearTimeout(self._timer);
                     return;
                 }
             }
             
-            var delay = frameduration * 1000 / metadata.timescale;
-
-            self._timer = setTimeout(f, delay);
+            frameDelay = frameduration * 1000 / metadata.timescale;
+            lastTime = now;
+            requestAnimationFrame(f);
             
         };
-        self._timer = setTimeout(f, 0);
+
+        requestAnimationFrame(f);
     };
     
     var drawCurrentFrame = function()
@@ -408,11 +450,8 @@ function PhosphorPlayer(bindto_id){
     
     this.play = function()
     {
-        if(self._timer){
-            clearTimeout(self._timer);
-        }
-        
         if (self._canvas && self._canvas.getContext && self._jsonData && self._atlasImagesLoaded) {
+            self._play = true;
             animate();
         }
         else {
@@ -423,9 +462,7 @@ function PhosphorPlayer(bindto_id){
     
     this.stop = function()
     {
-        if(self._timer){
-            clearTimeout(self._timer);
-        }
+        self._play = false;
     };
     
     this.currentFrameNumber = function()
