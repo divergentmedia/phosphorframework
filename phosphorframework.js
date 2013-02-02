@@ -387,7 +387,7 @@ function PhosphorPlayer(bindto_id){
                     self.loadOneImage();
                 };
 
-                if(self.img_path.length>0) {
+                if(self.img_path && self.img_path.length>0) {
                     img.src = self.img_path + self.img_urls.shift();
                 }
                 else {
