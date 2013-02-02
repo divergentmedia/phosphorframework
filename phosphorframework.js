@@ -290,8 +290,6 @@ function PhosphorPlayer(bindto_id){
         
         var clearBeforeBlitting = metadata.hasAlpha;
         
-        self._timer = setTimeout(function(){f()},0);
-        
         var f = function()
         {
             var frames = metadata.frames;
@@ -336,9 +334,11 @@ function PhosphorPlayer(bindto_id){
             }
             
             var delay = frameduration * 1000 / metadata.timescale;
-            self._timer = setTimeout(function(){f()},delay);
+
+            self._timer = setTimeout(f, delay);
             
         };
+        self._timer = setTimeout(f, 0);
     };
     
     var drawCurrentFrame = function()
