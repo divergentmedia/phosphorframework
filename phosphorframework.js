@@ -199,7 +199,7 @@ function PhosphorPlayer(bindto_id){
     this._debug = false;
     this._canvas = null;
     this._imgArray = [];
-    this._play = true;
+    this._animationId = -1;
     this._currentFrameNumber = 0;
     this._frameCount = 0;
     this._loop = false;
@@ -329,7 +329,7 @@ function PhosphorPlayer(bindto_id){
         {
             var frames = metadata.frames;
 
-            if (self._play === false) return;
+            if (self._animationId === -1) return;
 
             if (lastTime > 0 && (now - lastTime < frameDelay)) {
                 requestAnimationFrame(f);
@@ -376,11 +376,11 @@ function PhosphorPlayer(bindto_id){
             
             frameDelay = frameduration * 1000 / metadata.timescale;
             lastTime = now;
-            requestAnimationFrame(f);
+            self._animationId = requestAnimationFrame(f);
             
         };
 
-        requestAnimationFrame(f);
+        self._animationId = requestAnimationFrame(f);
     };
     
     var drawCurrentFrame = function()
@@ -450,8 +450,11 @@ function PhosphorPlayer(bindto_id){
     
     this.play = function()
     {
+        if (self._animationId != -1) {
+            return;
+        }
+
         if (self._canvas && self._canvas.getContext && self._jsonData && self._atlasImagesLoaded) {
-            self._play = true;
             animate();
         }
         else {
@@ -462,7 +465,12 @@ function PhosphorPlayer(bindto_id){
     
     this.stop = function()
     {
-        self._play = false;
+        if (self._animationId == -1) {
+            return;
+        }
+
+        cancelAnimationFrame(self._animationId);
+        self._animationId = -1;
     };
     
     this.currentFrameNumber = function()
