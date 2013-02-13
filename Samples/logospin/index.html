@@ -21,12 +21,12 @@
 
     <button onclick="jumpBackwardPhosphor();return false;">jump back</button>
     <button onclick="jumpForwardPhosphor();return false;">jump forward</button>
-    <a href="#source-code">Show Source</a>
   </form>
 
   <script>
 
   var player_logospin = null;
+  var player_logospin_path = ""; // path to Phosphor files on your server
   var logospin_framecount = 0;
 
 
@@ -48,6 +48,7 @@
        logospin_framecount = data.frames.length;
        player_logospin.load_animation({
         imageArray:["logospin_atlas000.png"],
+        imagePath: player_logospin_path,
         animationData: data,
         loop: true,
         onLoad: function() {
@@ -122,7 +123,7 @@
      var jsonpScript = document.createElement("script");
      jsonpScript.type = "text/javascript";
      jsonpScript.id = "jsonPinclude_logospin";
-     jsonpScript.src = "logospin_animationData.json" + "p";
+     jsonpScript.src = player_logospin_path + "logospin_animationData.jsonp";
      document.getElementsByTagName("head")[0].appendChild(jsonpScript);
 
 
@@ -161,6 +162,5 @@
   };
 
   </script>
-
 </body>
 </html>

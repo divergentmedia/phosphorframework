@@ -1,5 +1,5 @@
 /*!
- * Phosphor Framework 1.0.0
+ * Phosphor Framework 1.0.2
  * http://www.divergentmedia.com/phosphor
  *
  * Copyright 2013, divergent media, inc.
