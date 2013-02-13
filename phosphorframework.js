@@ -450,7 +450,7 @@ function PhosphorPlayer(bindto_id){
     
     this.play = function()
     {
-        if (self._animationId != -1) {
+        if (self._animationId !== -1) {
             return;
         }
 
@@ -465,7 +465,7 @@ function PhosphorPlayer(bindto_id){
     
     this.stop = function()
     {
-        if (self._animationId == -1) {
+        if (self._animationId === -1) {
             return;
         }
 
