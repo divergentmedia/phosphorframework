@@ -510,7 +510,10 @@ function PhosphorPlayer(bindto_id){
         if(imgdiv.complete) {
             self._canvas.width = imgdiv.width;
             self._canvas.height = imgdiv.height;            
-
+            if(self._canvas.width == 0) {
+                self._canvas.width = imgdiv.style.posWidth;
+                self._canvas.height = imgdiv.style.posHeight;
+            }
             parent.replaceChild(self._canvas,imgdiv);
             var context = self._canvas.getContext("2d");
             context.drawImage(imgdiv, 0,0);
@@ -519,7 +522,10 @@ function PhosphorPlayer(bindto_id){
             imgdiv.onload = function() {
                 self._canvas.width = imgdiv.width;
                 self._canvas.height = imgdiv.height;
-
+                if(self._canvas.width == 0) {
+                    self._canvas.width = imgdiv.style.posWidth;
+                    self._canvas.height = imgdiv.style.posHeight;
+                }
                 parent.replaceChild(self._canvas,imgdiv);
                 var context = self._canvas.getContext("2d");
                 context.drawImage(imgdiv, 0,0);
