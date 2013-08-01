@@ -26,15 +26,14 @@
  *
  */
 
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+
+// requestAnimationFrame polyfill by Erik Möller
+// fixes from Paul Irish and Tino Zijdel
+
+// version: https://gist.github.com/raw/1579671/7f515ade253afbc860dac1f84e21998d54359d79/rAF.js
 (function() {
-    // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-    // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
-
-    // requestAnimationFrame polyfill by Erik Möller
-    // fixes from Paul Irish and Tino Zijdel
-
-    // version: https://gist.github.com/raw/1579671/7f515ade253afbc860dac1f84e21998d54359d79/rAF.js
-
     var lastTime = 0;
     var vendors = ['ms', 'moz', 'webkit', 'o'];
     for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
@@ -64,7 +63,7 @@ function PhosphorPlayer(bindto_id){
     var self = this;
     this.bindId = bindto_id;
     this.frameworkVersion = 1;
-    
+
     var Base64BitStream = function(inputString) {
         var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
         var _bytePosition = 0;
@@ -94,7 +93,6 @@ function PhosphorPlayer(bindto_id){
                 _byteArray.push(byte1);
                 _byteArray.push(byte2);
                 _byteArray.push(byte3);
-                
             }
         };
         
@@ -294,7 +292,7 @@ function PhosphorPlayer(bindto_id){
                     if(frameType == 1 && clearBeforeBlitting){
                         ctx.clearRect(dx, dy, w2, h2);
                     }
-                    
+
                     ctx.drawImage(self._imgArray[imgindex], sx, sy, w1, h1, dx, dy, w2, h2);
                     
                     if(debugBlits){
@@ -311,7 +309,6 @@ function PhosphorPlayer(bindto_id){
     
     var animate = function()
     {
-        
         var metadata = self._jsonData;
         var dataVersion = metadata.version;
         
@@ -324,7 +321,7 @@ function PhosphorPlayer(bindto_id){
         var clearBeforeBlitting = metadata.hasAlpha;
         
         var lastTime = 0;
-        var frameDelay = 0
+        var frameDelay = 0;
 
         var f = function(now)
         {
@@ -334,7 +331,7 @@ function PhosphorPlayer(bindto_id){
 
             if (lastTime > 0 && (now - lastTime < frameDelay)) {
                 requestAnimationFrame(f);
-                return
+                return;
             }
             
             if(self._debug){
@@ -507,17 +504,21 @@ function PhosphorPlayer(bindto_id){
         }
         
         self._canvas.id = imgdiv.id;
-        self._canvas.width = imgdiv.width;
-        self._canvas.height = imgdiv.height;
         self._canvas.style.cssText = 'display:block;';
         
         if(imgdiv.complete) {
+            self._canvas.width = imgdiv.width;
+            self._canvas.height = imgdiv.height;            
+
             parent.replaceChild(self._canvas,imgdiv);
             var context = self._canvas.getContext("2d");
             context.drawImage(imgdiv, 0,0);
         }
         else {
             imgdiv.onload = function() {
+                self._canvas.width = imgdiv.width;
+                self._canvas.height = imgdiv.height;
+
                 parent.replaceChild(self._canvas,imgdiv);
                 var context = self._canvas.getContext("2d");
                 context.drawImage(imgdiv, 0,0);
