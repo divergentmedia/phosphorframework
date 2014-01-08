@@ -1,0 +1,169 @@
+<html>
+<head>
+  <meta http-equiv="Cache-control" content="no-cache">
+  <title>pingpong</title>
+  <script src="http://code.jquery.com/jquery-latest.js"></script>
+  <script type="text/javascript" src="../../phosphorframework.js"></script>
+</head>
+
+
+<body>
+
+	<p>pingpong.</p>
+
+	<img id="anim_target_pingpong" src="pingpong.jpg" width="400" height="224"/>
+
+	<br/>
+
+  <form>
+
+
+    <button onclick="playPhosphor();return false;">Play</button>
+    <button onclick="pausePhosphor();return false;">Pause</button>
+
+    <button onclick="jumpBackwardPhosphor();return false;">jump back</button>
+    <button onclick="jumpForwardPhosphor();return false;">jump forward</button>
+  </form>
+
+  <script>
+
+  var player_pingpong = null;
+  var player_pingpong_path = ""; // path to Phosphor files on your server
+  var pingpong_framecount = 0;
+
+
+  /**
+   * After the page has loaded, we register a callback which will be triggered by the jsonp file.
+   * Once the callback is registered, we inject the jsonp script file into the page's HEAD block.
+   * An alternative method is to use AJAX (getJSON, etc) to load the corresponding json file.  After loading the
+   * data, instantiate the player in the same way.
+   */
+
+   $(document).ready(function(){
+    player_pingpong = new PhosphorPlayer('anim_target_pingpong');
+    phosphorCallback_pingpong = function(data) {
+
+      /**
+       * Instantiate the player.  The player supports a variate of callbacks for deeper integration into your site.
+       */
+
+       pingpong_framecount = data.frames.length;
+       player_pingpong.load_animation({
+        imageArray:["pingpong_atlas000.jpg","pingpong_atlas001.jpg","pingpong_atlas002.jpg"],
+        imagePath: player_pingpong_path,
+        animationData: data,
+        loop: true,
+        pingPong: true,
+        onLoad: function() {
+          player_pingpong.play();
+
+          /**
+           * If your Phosphor composition was created with the "interactive" mode set, the code below enables that
+           * interation.  Handlers are registered for both mouse drag and touch events.
+           */
+
+           var trappedMouse = false;
+           var trappedXPos;
+
+           var enableInteractivity = false;
+
+           if(enableInteractivity) {
+            $("#anim_target_pingpong").mousedown(function(e){
+              e.preventDefault();
+              player_pingpong.stop();
+              trappedMouse = true;
+              trappedXPos = e.pageX;
+              $(document).bind('mousemove',function(event) {
+                if(trappedMouse){
+                  var pos =  (event.pageX - trappedXPos) / 5;
+                  var seekTime = (pingpong_framecount + player_pingpong.currentFrameNumber() + parseInt(pos)) % pingpong_framecount;
+                  player_pingpong.setCurrentFrameNumber(seekTime);
+                  trappedXPos = event.pageX;
+                }
+
+              });
+
+            });
+
+            $(document).mouseup(function(e){
+              trappedMouse = false;
+              $(document).unbind('mousemove');
+            });
+
+
+
+            $("#anim_target_pingpong").bind("touchstart",function(event){
+             var e = event.originalEvent;
+             e.preventDefault();
+             player_pingpong.stop();
+             trappedMouse = true;
+             trappedXPos = e.pageX;
+             $(document).bind('touchmove', function(e) {
+              if(trappedMouse){
+                var e = e.originalEvent;
+                e.preventDefault();
+                var pos =  (e.pageX - trappedXPos) / 5;
+                var seekTime = (pingpong_framecount + player_pingpong.currentFrameNumber() + parseInt(pos)) % pingpong_framecount;
+                player_pingpong.setCurrentFrameNumber(seekTime);
+                trappedXPos = e.pageX;
+              }
+             });
+           });
+
+            $("#anim_target_pingpong").bind("touchend",function(event){
+             var e = event.originalEvent;
+             e.preventDefault();
+             trappedMouse = false;
+             player_pingpong.play(true);
+             $(document).unbind('touchmove');
+           });
+
+          }
+
+        }
+      });
+     }
+     var jsonpScript = document.createElement("script");
+     jsonpScript.type = "text/javascript";
+     jsonpScript.id = "jsonPinclude_pingpong";
+     jsonpScript.src = player_pingpong_path + "pingpong_animationData.jsonp";
+     document.getElementsByTagName("head")[0].appendChild(jsonpScript);
+
+
+});
+
+  /**
+   * These functions demonstrate some of the ways you can control the Phosphor player.
+   * If you simply wish to play a Phosphor composition on your page, none of these need to be
+   * defined.
+   */
+
+   function toggleDebug(){
+    player_pingpong.debug(document.getElementById("debugCheckbox").checked);
+  };
+
+  function playPhosphor(){
+    player_pingpong.play(true);
+  };
+
+  function pausePhosphor(){
+    player_pingpong.stop();
+  };
+
+  function jumpForwardPhosphor(){
+    player_pingpong.stop();
+
+    var seekTime = (player_pingpong.currentFrameNumber() + 1) % pingpong_framecount;
+    player_pingpong.setCurrentFrameNumber(seekTime);
+  };
+
+  function jumpBackwardPhosphor(){
+    player_pingpong.stop();
+
+    var seekTime = (pingpong_framecount + player_pingpong.currentFrameNumber() - 1) % pingpong_framecount;
+    player_pingpong.setCurrentFrameNumber(seekTime);
+  };
+
+  </script>
+</body>
+</html>
