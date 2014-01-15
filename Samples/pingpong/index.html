@@ -11,7 +11,7 @@
 
 	<p>pingpong.</p>
 
-	<img id="anim_target_pingpong" src="pingpong.jpg" width="400" height="224"/>
+	<img id="anim_target_pingpong" src="pingpong.png" width="250" height="250"/>
 
 	<br/>
 
@@ -49,7 +49,7 @@
 
        pingpong_framecount = data.frames.length;
        player_pingpong.load_animation({
-        imageArray:["pingpong_atlas000.jpg","pingpong_atlas001.jpg","pingpong_atlas002.jpg"],
+        imageArray:["pingpong_atlas000.png"],
         imagePath: player_pingpong_path,
         animationData: data,
         loop: true,
@@ -65,7 +65,7 @@
            var trappedMouse = false;
            var trappedXPos;
 
-           var enableInteractivity = false;
+           var enableInteractivity = true;
 
            if(enableInteractivity) {
             $("#anim_target_pingpong").mousedown(function(e){
