@@ -358,18 +358,37 @@ function PhosphorPlayer(bindto_id){
                 
             }
             
-            self._currentFrameNumber++;
-            
-            if(self._currentFrameNumber == frames.length){
-                
-                if(self._playbackFinishedCallback) {
-                    self._playbackFinishedCallback();
+            if(!self._pingPong){
+                self._currentFrameNumber++;
+                if(self._currentFrameNumber == frames.length){
+
+                    if(self._playbackFinishedCallback) {
+                        self._playbackFinishedCallback();
+                    }
+
+                    if(self._loop){
+                        self._currentFrameNumber = 0;
+                    }else{
+                        return;
+                    }
                 }
-                
-                if(self._loop){
-                    self._currentFrameNumber = 0;
+            }
+            else{
+                if(self._playbackDirection == 1){
+
+                    if(self._currentFrameNumber == frames.length){
+                        self._playbackDirection = -1;
+                    }else{
+                        self._currentFrameNumber++;
+                    }
+
                 }else{
-                    return;
+
+                    if(self._currentFrameNumber == 0){
+                        self._playbackDirection = 1;
+                    }else{
+                        self._currentFrameNumber--;
+                    }
                 }
             }
             
@@ -417,6 +436,8 @@ function PhosphorPlayer(bindto_id){
         self.img_path = parameters.imagePath;
         self._onLoadHandler = parameters.onLoad;
         self._loop = parameters.loop;
+        self._pingPong = parameters.pingPong;
+        self._playbackDirection = 1;
         self._currentFrameCallback = parameters.currentFrameCallback;
         self._playbackFinishedCallback = parameters.playbackFinishedCallback;
         self.loadOneImage = function() {
