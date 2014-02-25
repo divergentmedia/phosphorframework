@@ -368,6 +368,7 @@ function PhosphorPlayer(bindto_id){
 
                     if(self._loop){
                         self._currentFrameNumber = 0;
+                        now = 0;
                     }else{
                         return;
                     }
